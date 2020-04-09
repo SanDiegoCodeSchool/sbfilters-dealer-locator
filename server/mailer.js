@@ -22,7 +22,7 @@ module.exports = (formObject) => {
   // configure the message
   const mailOptions = {
     from: 'sbdealerform@gmail.com', // sender address, gmail account created for now
-    to: 'wes@sdcs.io', // will eventually be the SB filters address, possibly their servicedesk account
+    to: process.env.SENDTO, // will eventually be the SB filters address, possibly their servicedesk account
     subject: 'New Dealer Registration', 
     text: message
   };
