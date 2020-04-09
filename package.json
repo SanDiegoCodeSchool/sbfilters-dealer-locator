@@ -1,0 +1,14 @@
+{
+  "name": "nodemailer-demo",
+  "version": "1.0.0",
+  "description": "simple test of nodemailer for client work",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "echo \"you haven't set this up yet\" && exit 1"
+  },
+  "keywords": [],
+  "repository": "https://www.github.com/sandiegocodeschool/sbfilters-nodemailer",
+  "author": "wesbosse",
+  "license": "ISC"
+}
