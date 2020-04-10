@@ -1,14 +1,36 @@
 require('dotenv').config();
 var nodemailer = require('nodemailer');
 
-module.exports = (formObject) => {
+module.exports = (requestObject) => {
   // create the message header
-  var message = 'New Dealer Registration\n------------------------'
+  var message = 'New Dealer Registration\n------------------------';
+  var attachments = [];
 
-  // add all of the form fields
-  Object.entries(formObject).forEach(
-    formField => message += `\n${formField[0]}: ${formField[1]}`
+  // add all of the form fields to the message text
+  Object.entries(requestObject.body).forEach(
+    formField => {
+      if(formField[0] != 'signature') {
+        message += `\n${formField[0]}: ${formField[1]}`;
+      } else {
+        attachments.push({
+          filename: 'signature.png',
+          content: new Buffer(formField[1].split(',')[1], 'base64'),
+        })
+      }
+    }
   );
+
+  // add all of the files to the attachment array
+  if(requestObject.files) {
+    Object.entries(requestObject.files.photos).forEach(
+      photoArr => {
+        attachments.push({
+          filename: photoArr[1].name,
+          content: photoArr[1].data,
+        })
+      }
+    );
+  }
 
   // initialize transport object with email credentials
   const transporter = nodemailer.createTransport({
@@ -21,10 +43,11 @@ module.exports = (formObject) => {
 
   // configure the message
   const mailOptions = {
-    from: 'sbdealerform@gmail.com', // sender address, gmail account created for now
+    from: 'sbdealerform@gmail.com', 
     to: process.env.SENDTO, // will eventually be the SB filters address, possibly their servicedesk account
-    subject: 'New Dealer Registration', 
-    text: message
+    subject: 'New Dealer Registration',
+    text: message, // message text variable
+    attachments: attachments // attachment array
   };
 
   // send the message, listen for error
