@@ -25,13 +25,16 @@ module.exports = (requestObject) => {
 
   // add all of the files to the attachment array
   if(requestObject.files) {
-    console.log("files seen");
     Object.entries(requestObject.files.photos).forEach(
       photoArr => {
+        console.log({
+          filename: photoArr[1].name,
+          content: photoArr[1].data,
+        });
         attachments.push({
           filename: photoArr[1].name,
           content: photoArr[1].data,
-        })
+        });
       }
     );
   }
@@ -54,6 +57,7 @@ module.exports = (requestObject) => {
     attachments: attachments // attachment array
   };
 
+  console.log(mailOptions);
   // send the message, listen for error
   transporter.sendMail(mailOptions, function(error, info){
     if (error) {
