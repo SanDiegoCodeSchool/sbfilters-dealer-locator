@@ -25,6 +25,7 @@ module.exports = (requestObject) => {
 
   // add all of the files to the attachment array
   if(requestObject.files) {
+    console.log("files seen");
     Object.entries(requestObject.files.photos).forEach(
       photoArr => {
         attachments.push({
