@@ -23,17 +23,23 @@ module.exports = (requestObject) => {
     }
   );
 
-  console.log(requestObject.files);
   // add all of the files to the attachment array
   if(requestObject.files) {
-    Object.entries(requestObject.files.photos).forEach(
-      photoArr => {
-        attachments.push({
-          filename: photoArr[1].name,
-          content: photoArr[1].data,
-        });
-      }
-    );
+    if (!Array.isArray(requestObject.files.photos)) {
+      attachments.push({
+        filename: requestObject.files.photos.name,
+        content: requestObject.files.photos.data
+      })
+    } else {
+      Object.entries(requestObject.files.photos).forEach(
+        photoArr => {
+          attachments.push({
+            filename: photoArr[1].name,
+            content: photoArr[1].data,
+          });
+        }
+      );
+    }
   }
 
   // initialize transport object with email credentials
