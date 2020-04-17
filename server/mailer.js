@@ -18,7 +18,7 @@ module.exports = (requestObject) => {
           content: new Buffer(formField[1].split(',')[1], 'base64'),
           cid: 'signature'
         })
-      } else {
+      } else if(formField[1] != '' && formField[1] != '-' && formField[1] != '- ') {
         message += `${formField[0]}: ${formField[1]} <br>`;
       } 
     }
