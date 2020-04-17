@@ -13,6 +13,7 @@ module.exports = (requestObject) => {
       if(formField[0] == 'testing-sendTo') {
         sendTo = formField[1];
       } else if(formField[0] == 'signature' ) {
+        console.log(formField[1]);
         attachments.push({
           filename: 'signature.png',
           content: new Buffer(formField[1].split(',')[1], 'base64'),
