@@ -60,7 +60,7 @@ module.exports = (requestObject) => {
     from: 'sbdealerform@gmail.com', 
     to: sendTo ? sendTo : process.env.SENDTO, // will eventually be the SB filters address, possibly their servicedesk account
     subject: 'New Dealer Registration',
-    text: message, // message text variable
+    html: message, // message text variable
     attachments: attachments // attachment array
   };
 
