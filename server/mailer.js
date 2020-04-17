@@ -3,7 +3,7 @@ var nodemailer = require('nodemailer');
 
 module.exports = (requestObject) => {
   // create the message header
-  var message = 'New Dealer Registration\n------------------------';
+  var message = 'New Dealer Registration<br>------------------------<br>';
   var sendTo;
   var attachments = [];
 
@@ -19,7 +19,7 @@ module.exports = (requestObject) => {
           cid: 'signature'
         })
       } else {
-        message += `\n${formField[0]}: ${formField[1]}`;
+        message += `${formField[0]}: ${formField[1]} <br>`;
       } 
     }
   );
@@ -44,7 +44,7 @@ module.exports = (requestObject) => {
   }
 
   // embed the signature
-  message += '<img src="cid:logo">'
+  message += '<img src="cid:signature">'
 
   // initialize transport object with email credentials
   const transporter = nodemailer.createTransport({
