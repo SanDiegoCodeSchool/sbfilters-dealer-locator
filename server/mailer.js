@@ -3,7 +3,7 @@ var nodemailer = require('nodemailer');
 
 module.exports = (requestObject) => {
   // create the message header
-  var message = '<div style="max-width: 800px;"><h3>New Dealer Registration</h3><br>------------------------<br>';
+  var message = '<div style="max-width: 800px;"><h3>New Dealer Registration</h3>';
   var sendTo, printedName, signedDate;
   var attachments = [];
 
@@ -69,7 +69,7 @@ module.exports = (requestObject) => {
   const mailOptions = {
     from: 'sbdealerform@gmail.com', 
     to: sendTo ? sendTo : process.env.SENDTO, // will eventually be the SB filters address, possibly their servicedesk account
-    subject: 'New Dealer Registration',
+    subject: `New Dealer Registration - ${printedName}`,
     html: message, // message text variable
     attachments: attachments // attachment array
   };
