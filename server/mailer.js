@@ -3,7 +3,7 @@ var nodemailer = require('nodemailer');
 
 module.exports = (requestObject) => {
   // create the message header
-  var message = '<div style="max-width: 800px;">New Dealer Registration<br>------------------------<br>';
+  var message = '<div style="max-width: 800px;"><h3>New Dealer Registration</h3><br>------------------------<br>';
   var sendTo;
   var attachments = [];
 
