@@ -23,7 +23,7 @@ app.get('/',function(req,res){
 
 app.post('/register',function(req,res){
     mailer(req);
-    res.redirect(200, 'https://dev2.sbfilters.com/new-dealer?submitted=true')
+    res.redirect(301, 'https://dev2.sbfilters.com/new-dealer?submitted=true')
 });
 
 module.exports = app;
