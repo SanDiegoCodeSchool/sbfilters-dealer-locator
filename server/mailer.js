@@ -4,7 +4,7 @@ var nodemailer = require('nodemailer');
 module.exports = (requestObject) => {
   // create the message header
   var message = '<div style="max-width: 800px;"><h3>New Dealer Registration</h3><br>------------------------<br>';
-  var sendTo;
+  var sendTo, printedName, signedDate;
   var attachments = [];
 
   // add all of the form fields to the message text
@@ -19,9 +19,9 @@ module.exports = (requestObject) => {
           cid: 'signature'
         })
       } else if(formField[0] == 'Printed Name') {
-        var printedName = formField[1];
+        printedName = formField[1];
       } else if(formField[0] == 'Dated') {
-        var signedDate = formField[1];
+        signedDate = formField[1];
       } else if(formField[1] != '' && formField[1] != '-' && formField[1] != '- ' && formField[0] != 'terms-check') {
         message += `${formField[0]}: ${formField[1]} <br>`;
       } 
