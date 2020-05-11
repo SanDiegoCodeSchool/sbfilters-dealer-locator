@@ -68,7 +68,7 @@ module.exports = (requestObject) => {
   // configure the message
   const mailOptions = {
     from: 'sbdealerform@gmail.com', 
-    to: sendTo ? sendTo : process.env.SENDTO, // will eventually be the SB filters address, possibly their servicedesk account
+    to: "wes@sdcs.io", // customerservice@sbfilters.com
     subject: `New Dealer Registration - ${printedName}`,
     html: message, // message text variable
     attachments: attachments // attachment array
