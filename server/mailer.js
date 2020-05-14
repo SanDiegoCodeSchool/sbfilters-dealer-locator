@@ -3,7 +3,7 @@ var nodemailer = require('nodemailer');
 
 module.exports = (requestObject) => {
   // create the message header
-  var message = '<div style="max-width: 800px;"><h3>New Dealer Registration</h3>';
+  var message = '<div style="max-width: 800px;"><h3>New Dealer Application</h3>';
   var sendTo, printedName, signedDate, fromEmail;
   var attachments = [];
 
@@ -75,7 +75,7 @@ module.exports = (requestObject) => {
   const mailOptions = {
     from: fromEmail, 
     to: "wes@sdcs.io", // customerservice@sbfilters.com
-    subject: `New Dealer Registration - ${printedName}`,
+    subject: `New Dealer Application - ${printedName}`,
     html: message, // message text variable
     attachments: attachments // attachment array
   };
