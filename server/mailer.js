@@ -74,7 +74,7 @@ module.exports = (requestObject) => {
   // configure the message
   const mailOptions = {
     from: fromEmail, 
-    to: "wes@sdcs.io", // customerservice@sbfilters.com
+    to: "customerservice@sbfilters.com", // customerservice@sbfilters.com
     subject: `New Dealer Application - ${printedName}`,
     html: message, // message text variable
     attachments: attachments // attachment array
