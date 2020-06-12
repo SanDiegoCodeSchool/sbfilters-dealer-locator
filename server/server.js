@@ -33,53 +33,12 @@ app.post('/register',function(req,res){
 
 app.post('/miva', async (req, res) => {
     console.log('in the miva route... ');
-    // const {id, bill_email, bill_fname, bill_lname, bill_addr1, bill_city, bill_state, bill_zip, bill_cntry, formatted_total, orderdate, items} = req.body;
-    const {id, bill_email, bill_fname, bill_lname, bill_addr1, bill_city, bill_state, bill_zip, bill_cntry, formatted_total, orderdate, items} = testData;
+    const {id, bill_email, bill_fname, bill_lname, bill_addr1, bill_city, bill_state, bill_zip, bill_cntry, formatted_total, orderdate, items} = req.body;
     
-    const getMivaItem = `<mvt:do file="g.Module_Feature_TUI_JSON" name="l.success" value="JSON_Item_Load(${id})" />`;
-    const mivaReqBody = {
-        "Store_Code": "sbtanks",
-        "Function": getMivaItem 
-    }
-
-    const mivaKey2 = 'cyHci6gp1xZ3WOKEd2s0gMELo0wkniSyF/j4Mwt6guY'; //this set is for a looser permission with no HMAC required
-    const mivaToken2 = "94f8cdcd2a8146777951eb2130b56021";
-    const mivaKey = 'wdBtJPvAzkeVRfUHcEw3TDg4x7XxDJEKHSiEWLe1qcM'; //this set is for the version that requires the HMAC
-    const mivaToken = 'f4bc12d967832254b6be80cd0bd3b6ca';
-
-    // const base64Decoded = Buffer.from(mivaKey, 'base64');
-    // let hmac = crypto.createHmac('sha256', base64Decoded);   
-    // hmac.write(JSON.stringify(mivaReqBody)); // write in to the stream PUT REQ BODY HERE
-    // hmac.end();       
-    // hash = hmac.read().toString('hex'); // read out hmac digest
-    // console.log("bundled HMAC: ", hash);
-    
-    // //base 64 encode HASH
-    // const base64Encoded = Buffer.from(hash).toString('base64');
-    // console.log(base64Encoded);
-
-    const mivaSettings = {
-        "url": "http://dev.sbtanks.com/mm5/json.mvc",
-        "method": "POST",
-        'headers': {
-            'Content-Type': 'application/json',
-            'X-Miva-API-Authorization': `MIVA ${mivaToken2}`,
-            'Accept': '*/*',
-        },
-        "body": JSON.stringify(mivaReqBody),
-    };
-
-    try {
-        let mivaProdInfo = await axios(mivaSettings);
-        console.log(`Miva results: `, mivaProdInfo)
-
-    } catch (e){
-        console.log(`Miva error: `, e);
-    }
-
     const formattedItems = items.map((item) => {
         const {sku, name, price} = item;
-        
+        let nameCleanedforURL = name.replace(/[, ]+/g, "-").replace(/[.]+/g, "").trim().toLowerCase();
+
         const eachItemObj = {
             "productId": sku,
             "productBrand": "SB Tanks",
@@ -88,7 +47,8 @@ app.post('/miva', async (req, res) => {
             "productImageUrl": "",
             "productPrice": `$${price}`,
             "productType": "",
-            "productUrl": ""
+            //this will need to be swapped for the live site
+            "productUrl": `http://dev.sbtanks.com/${nameCleanedforURL}`
         }
         return eachItemObj;
     })
@@ -122,16 +82,15 @@ app.post('/miva', async (req, res) => {
         ),
     };
 
-    
-    // try {
-    //     let stampedResult = await axios(stampedSettings);
-    //     console.log(`Stamped Post Result: `, stampedResult?.data);
-    //     if (stampedResult?.data.length == 0) {
-    //         console.log('Successful stamped post, unsuccessful email generation, most likely a duplicate order number.')
-    //     }
-    // } catch (err) {
-    //     console.log(`Error with stmaped post: ${err}`);
-    // }
+    try {
+        let stampedResult = await axios(stampedSettings);
+        console.log(`Stamped Post Result: `, stampedResult?.data);
+        if (stampedResult?.data.length == 0) {
+            console.log('Successful stamped post, unsuccessful email generation, most likely a duplicate order number.')
+        }
+    } catch (err) {
+        console.log(`Error with stmaped post: ${err}`);
+    }
 });
 
 module.exports = app;
