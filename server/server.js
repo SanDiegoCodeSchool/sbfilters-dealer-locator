@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const path = require('path');
 const fileUpload = require('express-fileupload');
 const axios = require('axios');
-const crypto = require('crypto');
+// const crypto = require('crypto');
 
 
 const testData = require('../miva-post-raw.json');
@@ -54,13 +54,11 @@ app.post('/miva', async (req, res) => {
     })
 
     const stampedSettings = {
-        //number after v2 needs to be swapped to the live Stamped account#
-        "url": "https://stamped.io/api/v2/135885/survey/reviews/bulk",
+        "url": `https://stamped.io/api/v2/${process.env.STAMPED_STORE_HASH}/survey/reviews/bulk`,
         "method": "POST",
         'headers': {
             'Content-Type': 'application/json',
-            //and these user:pass need to be swapped out for the live stamped API user:psss
-            'Authorization': 'Basic cHVia2V5LU4yWmFycDhKcjVvMDMxZmk5MnFTZWYzRnRmdU9JZjprZXktNjU2M2prSEE1Wm5mMzhDT2k1UDhwODVzTW9GbEMz'
+            'Authorization': `Basic ${process.env.STAMPED_PUBLIC_KEY}:${process.env.STAMPED_PRIVATE_KEY}`
         },
         "data": JSON.stringify(
             [
