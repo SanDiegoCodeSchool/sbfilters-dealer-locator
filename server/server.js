@@ -82,7 +82,7 @@ app.post('/miva', async (req, res) => {
 
     try {
         let stampedResult = await axios(stampedSettings);
-        if (stanpedResult) {
+        if (stampedResult) {
             if (stampedResult.data) {
                 console.log(`Stamped Result data: `, stampedResult.data);
                 if (stampedResult.data.length == 0) {
