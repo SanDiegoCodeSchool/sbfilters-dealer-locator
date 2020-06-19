@@ -82,9 +82,15 @@ app.post('/miva', async (req, res) => {
 
     try {
         let stampedResult = await axios(stampedSettings);
-        console.log(`Stamped Post Result: `, stampedResult.data);
-        if (stampedResult.data.length == 0) {
-            console.log('Successful stamped post, unsuccessful email generation, most likely a duplicate order number.')
+
+        if (stampedResult) {
+            if (stampedResult.data) {
+                console.log(`Stamped Result data: `, stampedResult.data);
+                if (stampedResult.data.length == 0) {
+                    console.log('Successful stamped post, unsuccessful email generation, most likely a duplicate order number.')
+                }
+            }
+
         }
     } catch (err) {
         console.log(`Error with stmaped post: ${err}`);
