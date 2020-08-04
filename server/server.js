@@ -4,10 +4,10 @@ const bodyParser = require("body-parser");
 const path = require('path');
 const fileUpload = require('express-fileupload');
 const axios = require('axios');
+const dotenv = require('dotenv').config();
+
 // const crypto = require('crypto');
-
-
-const testData = require('../miva-post-raw.json');
+// const testData = require('../miva-post-raw.json');
 
 // imported from mailer.js
 const mailer = require("./mailer")
@@ -57,8 +57,11 @@ app.post('/miva', async (req, res) => {
         "url": `https://stamped.io/api/v2/${process.env.STAMPED_STORE_HASH}/survey/reviews/bulk`,
         "method": "POST",
         'headers': {
-            'Content-Type': 'application/json',
-            'Authorization': `Basic ${process.env.STAMPED_PUBLIC_KEY}:${process.env.STAMPED_PRIVATE_KEY}`
+            'Content-Type': 'application/json'
+        },
+        "auth": {
+            "username": process.env.STAMPED_PUBLIC_KEY,
+            "password": process.env.STAMPED_PRIVATE_KEY
         },
         "data": JSON.stringify(
             [
