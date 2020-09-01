@@ -80,13 +80,15 @@ module.exports = (requestObject) => {
     attachments: attachments // attachment array
   };
 
-  // send the message, listen for error
-  transporter.sendMail(mailOptions, function(error, info){
-    if (error) {
-      console.log(error);
-    } else {
-      console.log('Email sent: ' + info.response);
-    }
-  }); 
+  if(printedName != null) {
+    // send the message, listen for error
+    transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    }); 
+  }
 
 }
