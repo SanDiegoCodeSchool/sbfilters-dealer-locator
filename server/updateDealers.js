@@ -37,8 +37,8 @@ const updateDealers = async () => {
         client.connect((err, client) => {
             if (err) console.log(`Insert Data Connect Error: `, err);
             console.log("Connected to server insert");
-            const db = client.db(dbName);
-            const col = db.collection('dealers');
+            const database = client.db(dbName);
+            const col = database.collection('dealers');
 
             col.insertOne({name: "dealerJson", data: dealerJson}, (err, res) => {
                 if (err) console.log("Insert Error: ", err);
