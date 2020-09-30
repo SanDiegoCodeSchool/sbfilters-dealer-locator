@@ -30,6 +30,7 @@ app.get('/',function(req,res){
 
 app.get('/mongo', async (req , res) => {
     updateDealers();
+    res.status(200).send("connected");
 });
 
 cron.schedule('59 23 * * *', () => {
