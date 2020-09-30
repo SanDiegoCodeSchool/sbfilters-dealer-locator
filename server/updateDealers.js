@@ -54,29 +54,31 @@ const updateDealers = async () => {
             console.log("Connected to DB to Get Data");
             const db = client.db(dbName);
             const col = db.collection('dealers');
+            insertData();
 
-            col.findOne({name: "dealerJson"}, (err, res) => {
-                if (err) console.log(`Find Error: `, err);
-                if (res == null) {
-                    insertData();
-                    // const allDealers = compareData(dealerJson, mivaData);
-                    // if (allDealers.length > dealerJson.length) {
-                    //     const howMany = allDealers.length - dealerJson.length;
-                    //     updateData(allDealers, howMany);
-                    // } else {
-                    //     console.log("No new dealers to update this round.")
-                    // }
-                } else {
-                    const dbDealers = res.data;
-                    const allDealers = compareData(dbDealers, mivaData);
-                    if (allDealers.length > dbDealers.length) {
-                        const howMany = allDealers.length - dbDealers.length;
-                        updateData(allDealers, howMany);
-                    } else {
-                        console.log("No new dealers to update this round.")
-                    }
-                }
-            })
+
+            // col.findOne({name: "dealerJson"}, (err, res) => {
+            //     if (err) console.log(`Find Error: `, err);
+            //     if (res == null) {
+            //         insertData();
+            //         // const allDealers = compareData(dealerJson, mivaData);
+            //         // if (allDealers.length > dealerJson.length) {
+            //         //     const howMany = allDealers.length - dealerJson.length;
+            //         //     updateData(allDealers, howMany);
+            //         // } else {
+            //         //     console.log("No new dealers to update this round.")
+            //         // }
+            //     } else {
+            //         const dbDealers = res.data;
+            //         const allDealers = compareData(dbDealers, mivaData);
+            //         if (allDealers.length > dbDealers.length) {
+            //             const howMany = allDealers.length - dbDealers.length;
+            //             updateData(allDealers, howMany);
+            //         } else {
+            //             console.log("No new dealers to update this round.")
+            //         }
+            //     }
+            // })
         });
     };
 
