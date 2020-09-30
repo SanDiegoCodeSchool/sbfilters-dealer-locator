@@ -36,7 +36,7 @@ const updateDealers = async () => {
     const insertData = () => {
         client.connect((err, db) => {
             if (err) console.log(`Insert Data Connect Error: `, err);
-            console.log("Connected to server insert");
+            console.log("Connected to DB insert");
             // const db = client.db(dbName);
             // const col = db.collection('dealers');
             // const db = client.db(dbName);
@@ -140,7 +140,8 @@ const updateDealers = async () => {
         await mivaClient.downloadTo(filePathToLocalFile, filePathInMiva);
         const mivaData = require(filePathToLocalFile);
         console.log(`Miva Data acquired, updating DB.`);
-        getData(mivaData);
+        // getData(mivaData);
+        insertData();
         // mivaClient.close();
     } catch(err) {
         console.log(`Miva Error: `, err);
