@@ -58,14 +58,14 @@ const updateDealers = async () => {
             col.findOne({name: "dealerJson"}, (err, res) => {
                 if (err) console.log(`Find Error: `, err);
                 if (res == null) {
-                    // insertData();
-                    const allDealers = compareData(dealerJson, mivaData);
-                    if (allDealers.length > dealerJson.length) {
-                        const howMany = allDealers.length - dealerJson.length;
-                        updateData(allDealers, howMany);
-                    } else {
-                        console.log("No new dealers to update this round.")
-                    }
+                    insertData();
+                    // const allDealers = compareData(dealerJson, mivaData);
+                    // if (allDealers.length > dealerJson.length) {
+                    //     const howMany = allDealers.length - dealerJson.length;
+                    //     updateData(allDealers, howMany);
+                    // } else {
+                    //     console.log("No new dealers to update this round.")
+                    // }
                 } else {
                     const dbDealers = res.data;
                     const allDealers = compareData(dbDealers, mivaData);
