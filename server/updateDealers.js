@@ -35,9 +35,14 @@ const updateDealers = async () => {
 
     const createDB = () => {
         client.connect((err, client) => {
-            if (err) console.log(`CreasteDB Error: `, err);
-            console.log("Database created!");
-            client.close();
+            if (err) console.log(`CreateDB Error: `, err);
+            // console.log("Database created!");
+            // client.close();
+            client.createCollection("dealers", (err, res) => {
+                if (err) throw err;
+                console.log("Collection created! ", res);
+                
+            });
         });
     };
 
