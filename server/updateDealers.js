@@ -35,13 +35,29 @@ const updateDealers = async () => {
 
     const createDB = () => {
         client.connect((err, client) => {
-            if (err) console.log(`CreateDB Error: `, err);
-            // console.log("Database created!");
-            // client.close();
-            client.createCollection("dealers", (err, res) => {
-                if (err) throw err;
-                console.log("Collection created! ", res);
+            if(err)
+                throw err;
                 
+            //Specify the database to be used
+            db = client.db(dbName);
+            
+            //Specify the collection to be used
+            col = db.collection('dealers');
+        
+            //Insert a single document
+            col.insertOne({name: "dealerJson", data: dealerJson}, function(err, result){
+                if (err) console.log(`Insertone Connect Error: `, err);
+
+              //Find the document that was previously written
+                col.findOne({name:'dealerJson'}, function(err, result){
+                    if (err) console.log(`findone Connect Error: `, err);
+
+                    //Print the result to the screen
+                    console.log(result);
+                    
+                    //Close the connection
+                    client.close()
+                });
             });
         });
     };
