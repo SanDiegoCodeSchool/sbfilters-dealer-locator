@@ -17,9 +17,6 @@ const updateDealers = async () => {
     const MongoClient = require('mongodb').MongoClient;
     const url = `mongodb://${process.env.DOCUMENT_USER}:${process.env.DOCUMENT_PASSWORD}@docdb-2020-09-28-20-35-00.cluster-crkcmdiwbs7h.us-east-1.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
     
-    console.log(`ca: `, ca);
-    console.log(`url: `, url);
-    
     const client = new MongoClient(url, { 
         sslValidate: true,
         sslCA: ca,
@@ -28,7 +25,6 @@ const updateDealers = async () => {
     }); 
     const dbName = 'sbdealers';
 
-
     //Local hosted mongo connection
     // const MongoClient = require('mongodb').MongoClient;
     // const assert = require('assert');
@@ -36,35 +32,6 @@ const updateDealers = async () => {
     // const dbName = 'sbdealers';
     
     // const client = new MongoClient(url, { useUnifiedTopology: true });  
-
-    // const createDB = () => {
-    //     client.connect((err, client) => {
-    //         if(err)
-    //             throw err;
-    //         console.log("connected to DB", client);
-    //         //Specify the database to be used
-    //         db = client.db(dbName);
-            
-    //         //Specify the collection to be used
-    //         col = db.collection('dealers');
-        
-    //         //Insert a single document
-    //         col.insertOne({name: "dealerJson", data: dealerJson}, function(err, result){
-    //             if (err) console.log(`Insertone Connect Error: `, err);
-
-    //           //Find the document that was previously written
-    //             col.findOne({name:'dealerJson'}, function(err, result){
-    //                 if (err) console.log(`findone Connect Error: `, err);
-
-    //                 //Print the result to the screen
-    //                 console.log(result);
-                    
-    //                 //Close the connection
-    //                 client.close()
-    //             });
-    //         });
-    //     });
-    // };
 
     const insertData = () => {
         client.connect((err, client) => {
@@ -87,7 +54,7 @@ const updateDealers = async () => {
             console.log("Connected to DB to Get Data");
             const db = client.db(dbName);
             const col = db.collection('dealers');
-            
+
             col.findOne({name: "dealerJson"}, (err, res) => {
                 if (err) console.log(`Find Error: `, err);
                 //if It doesnt exist yet compare it to the local JSON data and update it form there. 
@@ -172,12 +139,11 @@ const updateDealers = async () => {
         console.log(`Miva Data acquired, updating DB.`);
         getData(mivaData);
         // insertData();
-        // mivaClient.close();
+        mivaClient.close();
         // createDB();
     } catch(err) {
         console.log(`Miva Error: `, err);
     }
-    // createDB();
 };
 
 module.exports = updateDealers;

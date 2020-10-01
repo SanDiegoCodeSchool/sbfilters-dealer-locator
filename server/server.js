@@ -32,21 +32,10 @@ app.get('/mongo', async (req , res) => {
     res.status(200).send("connected");
 });
 
-cron.schedule('59 23 * * *', () => {
-    console.log("running at 11:59pm");
+//node-cron is timezone UTC 7h+ from PST, midnight in PST is 7am UTC
+cron.schedule('59 6 * * *', () => {
+    console.log("running at 11:59pm PST, 6:59am UTC");
     updateDealers();
-}, {
-    scheduled: true,
-    timezone: "America/Los_Angeles"
 });
-
-cron.schedule('10 19 * * *', () => {
-    console.log("running at 10:19pm");
-    updateDealers();
-}, {
-    scheduled: true,
-    timezone: "America/Los_Angeles"
-})
-
 
 module.exports = app;
