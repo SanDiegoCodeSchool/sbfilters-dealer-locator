@@ -35,6 +35,11 @@ app.get('/mongo', async (req , res) => {
 cron.schedule('59 23 * * *', () => {
     console.log("running at 11:59pm");
     updateDealers();
+});
+
+cron.schedule('10 10 * * *', () => {
+    console.log("running at 10:10pm");
+    updateDealers();
 })
 
 
