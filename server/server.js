@@ -37,7 +37,7 @@ cron.schedule('59 23 * * *', () => {
     updateDealers();
 });
 
-cron.schedule('10 10 * * *', () => {
+cron.schedule('14 17 * * *', () => {
     console.log("running at 10:10pm");
     updateDealers();
 })
