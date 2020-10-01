@@ -34,7 +34,7 @@ const updateDealers = async () => {
     // const client = new MongoClient(url, { useUnifiedTopology: true });  
 
     const createDB = () => {
-        client.connect(url, function(err, db) {
+        client.connect((err, db) => {
             if (err) throw err;
             console.log("Database created!");
             db.close();
