@@ -15,7 +15,7 @@ const updateDealers = async () => {
     //Specify the Amazon DocumentDB cert
     const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/rds-combined-ca-bundle.pem'), 'utf8')];
     const MongoClient = require('mongodb').MongoClient;
-    const url = `mongodb://${process.env.DOCUEMNT_USER}:${process.env.DOCUMENT_PASSWORD}@docdb-2020-09-28-20-35-00.cluster-crkcmdiwbs7h.us-east-1.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
+    const url = `mongodb://${process.env.DOCUMENT_USER}:${process.env.DOCUMENT_PASSWORD}@docdb-2020-09-28-20-35-00.cluster-crkcmdiwbs7h.us-east-1.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
     
     console.log(`ca: `, ca);
     console.log(`url: `, url);
