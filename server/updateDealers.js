@@ -34,10 +34,10 @@ const updateDealers = async () => {
     // const client = new MongoClient(url, { useUnifiedTopology: true });  
 
     const createDB = () => {
-        client.connect((err, db) => {
-            if (err) throw err;
+        client.connect((err, client) => {
+            if (err) console.log(`CreasteDB Error: `, err);
             console.log("Database created!");
-            db.close();
+            client.close();
         });
     };
 
