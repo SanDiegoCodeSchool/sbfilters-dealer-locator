@@ -16,6 +16,10 @@ const updateDealers = async () => {
     const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/rds-combined-ca-bundle.pem'), 'utf8')];
     const MongoClient = require('mongodb').MongoClient;
     const url = `mongodb://${process.env.DOCUEMNT_USER}:${process.env.DOCUMENT_PASSWORD}@docdb-2020-09-28-20-35-00.cluster-crkcmdiwbs7h.us-east-1.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
+    
+    console.log(`ca: `, ca);
+    console.log(`url: `, url);
+    
     const client = new MongoClient(url, { 
         sslValidate: true,
         sslCA: ca,
@@ -155,25 +159,26 @@ const updateDealers = async () => {
     // const filePathInMiva2 = `mm5/themes/shadows/custom-styles/newLocations.json`;
     const filePathToLocalFile = `${__dirname}/newLocations.json`;
 
-    try {
-        await mivaClient.access(mivaFtpCredentials);
-        mivaClient.trackProgress(info => {
-            console.log("File", info.name)
-            console.log("Type", info.type)
-            console.log("Transferred", info.bytes)
-            console.log("Transferred Overall", info.bytesOverall)
-        })
-        console.log(`List: `, await mivaClient.list(`mm5/themes/shadows/custom-styles/testData`));
-        await mivaClient.downloadTo(filePathToLocalFile, filePathInMiva);
-        const mivaData = require(filePathToLocalFile);
-        console.log(`Miva Data acquired, updating DB.`);
-        // getData(mivaData);
-        // insertData();
-        // mivaClient.close();
-        createDB();
-    } catch(err) {
-        console.log(`Miva Error: `, err);
-    }
+    // try {
+    //     await mivaClient.access(mivaFtpCredentials);
+    //     mivaClient.trackProgress(info => {
+    //         console.log("File", info.name)
+    //         console.log("Type", info.type)
+    //         console.log("Transferred", info.bytes)
+    //         console.log("Transferred Overall", info.bytesOverall)
+    //     })
+    //     console.log(`List: `, await mivaClient.list(`mm5/themes/shadows/custom-styles/testData`));
+    //     await mivaClient.downloadTo(filePathToLocalFile, filePathInMiva);
+    //     const mivaData = require(filePathToLocalFile);
+    //     console.log(`Miva Data acquired, updating DB.`);
+    //     // getData(mivaData);
+    //     // insertData();
+    //     // mivaClient.close();
+    //     createDB();
+    // } catch(err) {
+    //     console.log(`Miva Error: `, err);
+    // }
+    createDB();
 };
 
 module.exports = updateDealers;
