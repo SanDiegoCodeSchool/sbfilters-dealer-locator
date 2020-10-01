@@ -33,13 +33,19 @@ const updateDealers = async () => {
     
     // const client = new MongoClient(url, { useUnifiedTopology: true });  
 
+    const createDB = () => {
+        client.connect(url, function(err, db) {
+            if (err) throw err;
+            console.log("Database created!");
+            db.close();
+        });
+    };
+
     const insertData = () => {
-        client.connect((err, db) => {
+        client.connect((err, client) => {
             if (err) console.log(`Insert Data Connect Error: `, err);
             console.log("Connected to DB insert");
-            // const db = client.db(dbName);
-            // const col = db.collection('dealers');
-            // const db = client.db(dbName);
+            const db = client.db(dbName);
             const col = db.collection('dealers');
 
             col.insertOne({name: "dealerJson", data: dealerJson}, (err, res) => {
@@ -141,8 +147,9 @@ const updateDealers = async () => {
         const mivaData = require(filePathToLocalFile);
         console.log(`Miva Data acquired, updating DB.`);
         // getData(mivaData);
-        insertData();
+        // insertData();
         // mivaClient.close();
+        createDB();
     } catch(err) {
         console.log(`Miva Error: `, err);
     }
