@@ -19,8 +19,8 @@ const updateDealers = async () => {
     const client = new MongoClient(url, { 
         sslValidate: true,
         sslCA: ca,
-        useNewUrlParser: true,
-        useUnifiedTopology: true
+        useNewUrlParser: true
+        // useUnifiedTopology: true
     }); 
     const dbName = 'sbdealers';
 
@@ -37,7 +37,7 @@ const updateDealers = async () => {
         client.connect((err, client) => {
             if(err)
                 throw err;
-                
+            console.log("connected to DB", client);
             //Specify the database to be used
             db = client.db(dbName);
             
