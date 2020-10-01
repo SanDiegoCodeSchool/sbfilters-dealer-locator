@@ -37,34 +37,34 @@ const updateDealers = async () => {
     
     // const client = new MongoClient(url, { useUnifiedTopology: true });  
 
-    const createDB = () => {
-        client.connect((err, client) => {
-            if(err)
-                throw err;
-            console.log("connected to DB", client);
-            //Specify the database to be used
-            db = client.db(dbName);
+    // const createDB = () => {
+    //     client.connect((err, client) => {
+    //         if(err)
+    //             throw err;
+    //         console.log("connected to DB", client);
+    //         //Specify the database to be used
+    //         db = client.db(dbName);
             
-            //Specify the collection to be used
-            col = db.collection('dealers');
+    //         //Specify the collection to be used
+    //         col = db.collection('dealers');
         
-            //Insert a single document
-            col.insertOne({name: "dealerJson", data: dealerJson}, function(err, result){
-                if (err) console.log(`Insertone Connect Error: `, err);
+    //         //Insert a single document
+    //         col.insertOne({name: "dealerJson", data: dealerJson}, function(err, result){
+    //             if (err) console.log(`Insertone Connect Error: `, err);
 
-              //Find the document that was previously written
-                col.findOne({name:'dealerJson'}, function(err, result){
-                    if (err) console.log(`findone Connect Error: `, err);
+    //           //Find the document that was previously written
+    //             col.findOne({name:'dealerJson'}, function(err, result){
+    //                 if (err) console.log(`findone Connect Error: `, err);
 
-                    //Print the result to the screen
-                    console.log(result);
+    //                 //Print the result to the screen
+    //                 console.log(result);
                     
-                    //Close the connection
-                    client.close()
-                });
-            });
-        });
-    };
+    //                 //Close the connection
+    //                 client.close()
+    //             });
+    //         });
+    //     });
+    // };
 
     const insertData = () => {
         client.connect((err, client) => {
@@ -87,31 +87,30 @@ const updateDealers = async () => {
             console.log("Connected to DB to Get Data");
             const db = client.db(dbName);
             const col = db.collection('dealers');
-            insertData();
-
-
-            // col.findOne({name: "dealerJson"}, (err, res) => {
-            //     if (err) console.log(`Find Error: `, err);
-            //     if (res == null) {
-            //         insertData();
-            //         // const allDealers = compareData(dealerJson, mivaData);
-            //         // if (allDealers.length > dealerJson.length) {
-            //         //     const howMany = allDealers.length - dealerJson.length;
-            //         //     updateData(allDealers, howMany);
-            //         // } else {
-            //         //     console.log("No new dealers to update this round.")
-            //         // }
-            //     } else {
-            //         const dbDealers = res.data;
-            //         const allDealers = compareData(dbDealers, mivaData);
-            //         if (allDealers.length > dbDealers.length) {
-            //             const howMany = allDealers.length - dbDealers.length;
-            //             updateData(allDealers, howMany);
-            //         } else {
-            //             console.log("No new dealers to update this round.")
-            //         }
-            //     }
-            // })
+            
+            col.findOne({name: "dealerJson"}, (err, res) => {
+                if (err) console.log(`Find Error: `, err);
+                //if It doesnt exist yet compare it to the local JSON data and update it form there. 
+                if (res == null) {
+                    // insertData();
+                    const allDealers = compareData(dealerJson, mivaData);
+                    if (allDealers.length > dealerJson.length) {
+                        const howMany = allDealers.length - dealerJson.length;
+                        updateData(allDealers, howMany);
+                    } else {
+                        console.log("No new dealers to update this round.")
+                    }
+                } else {
+                    const dbDealers = res.data;
+                    const allDealers = compareData(dbDealers, mivaData);
+                    if (allDealers.length > dbDealers.length) {
+                        const howMany = allDealers.length - dbDealers.length;
+                        updateData(allDealers, howMany);
+                    } else {
+                        console.log("No new dealers to update this round.")
+                    }
+                }
+            })
         });
     };
 
@@ -159,26 +158,26 @@ const updateDealers = async () => {
     // const filePathInMiva2 = `mm5/themes/shadows/custom-styles/newLocations.json`;
     const filePathToLocalFile = `${__dirname}/newLocations.json`;
 
-    // try {
-    //     await mivaClient.access(mivaFtpCredentials);
-    //     mivaClient.trackProgress(info => {
-    //         console.log("File", info.name)
-    //         console.log("Type", info.type)
-    //         console.log("Transferred", info.bytes)
-    //         console.log("Transferred Overall", info.bytesOverall)
-    //     })
-    //     console.log(`List: `, await mivaClient.list(`mm5/themes/shadows/custom-styles/testData`));
-    //     await mivaClient.downloadTo(filePathToLocalFile, filePathInMiva);
-    //     const mivaData = require(filePathToLocalFile);
-    //     console.log(`Miva Data acquired, updating DB.`);
-    //     // getData(mivaData);
-    //     // insertData();
-    //     // mivaClient.close();
-    //     createDB();
-    // } catch(err) {
-    //     console.log(`Miva Error: `, err);
-    // }
-    createDB();
+    try {
+        await mivaClient.access(mivaFtpCredentials);
+        mivaClient.trackProgress(info => {
+            console.log("File", info.name)
+            console.log("Type", info.type)
+            console.log("Transferred", info.bytes)
+            console.log("Transferred Overall", info.bytesOverall)
+        })
+        console.log(`List: `, await mivaClient.list(`mm5/themes/shadows/custom-styles/testData`));
+        await mivaClient.downloadTo(filePathToLocalFile, filePathInMiva);
+        const mivaData = require(filePathToLocalFile);
+        console.log(`Miva Data acquired, updating DB.`);
+        getData(mivaData);
+        // insertData();
+        // mivaClient.close();
+        // createDB();
+    } catch(err) {
+        console.log(`Miva Error: `, err);
+    }
+    // createDB();
 };
 
 module.exports = updateDealers;
