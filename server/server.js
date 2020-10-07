@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const morgan = require("morgan");
 const path = require('path');
 const fileUpload = require('express-fileupload');
 const dotenv = require('dotenv').config();
@@ -10,6 +11,8 @@ f = require('util').format;
 const tunnel = require('tunnel-ssh');
 
 const updateDealers = require('./updateDealers');
+const requestDealers = require('./requestDealers');
+
 const dealerJson = require('../savedFiles/locations.json');
 // const testData = require('../savedFiles/newLocations.json');
 
@@ -21,15 +24,25 @@ app.use(fileUpload({createParentPath: true}));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+
+app.use(morgan("dev"));
+app.use(express.static('src'));
+
 // route handlers
 app.get('/',function(req,res){
     console.log('someone is trying to get the root...');
     res.status(200)
 });
 
-app.get('/mongo', async (req , res) => {
+app.get('/update', async (req , res) => {
     updateDealers();
     res.status(200).send("connected");
+});
+
+app.get('/dealers', async (req, res) => {
+    console.log("Retreiving dealers from the DB");
+    const dealerData = await requestDealers();
+    res.status(200).send(dealerData);
 });
 
 //node-cron is timezone UTC 7h+ from PST, midnight in PST is 7am UTC

@@ -5,7 +5,9 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
-    "test": "echo \"you haven't set this up yet\" && exit 1"
+    "test": "echo \"you haven't set this up yet\" && exit 1",
+    "build": "NODE_ENV=production parcel build JS/index.html",
+    "watch": "parcel watch src/index.html"
   },
   "keywords": [],
   "repository": "https://www.github.com/hank-frank/Document-node",
@@ -16,13 +18,25 @@
     "basic-ftp": "^4.6.2",
     "body-parser": "^1.19.0",
     "crypto": "^1.0.1",
+    "css": "^3.0.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-fileupload": "^1.1.7-alpha.3",
     "fs": "0.0.1-security",
+    "install": "^0.13.0",
     "mongodb": "^3.6.0",
+    "morgan": "^1.10.0",
     "node-cron": "^2.0.3",
+    "npm": "^6.14.8",
+    "parcel": "^1.12.4",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "tunnel-ssh": "^4.1.4",
     "util": "^0.12.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.11.6",
+    "@babel/plugin-transform-runtime": "^7.11.5",
+    "@babel/preset-react": "^7.10.4"
   }
 }
