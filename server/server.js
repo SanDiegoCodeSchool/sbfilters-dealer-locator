@@ -40,8 +40,13 @@ app.get('/update', async (req , res) => {
 });
 
 app.get('/dealers', async (req, res) => {
+    const n = parseFloat(req.query.n);
+    const s = parseFloat(req.query.s);
+    const e = parseFloat(req.query.e);
+    const w = parseFloat(req.query.w);
+    // console.log(`n${n} s${s} e${e} w${w}`)
     console.log("Retreiving dealers from the DB");
-    const dealerData = await requestDealers();
+    const dealerData = await requestDealers(n, s, e, w);
     res.status(200).send(dealerData);
 });
 

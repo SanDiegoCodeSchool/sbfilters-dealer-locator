@@ -11,7 +11,7 @@ const tunnel = require('tunnel-ssh');
 const dealerJson = require('../savedFiles/locations.json');
 // const testData = require('../savedFiles/newLocations.json');
 
-const requestDealers = async () => {
+const requestDealers = async (north, south, east, west) => {
     //Specify the Amazon DocumentDB cert
     // const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/rds-combined-ca-bundle.pem'), 'utf8')];
     // const MongoClient = require('mongodb').MongoClient;
@@ -33,10 +33,9 @@ const requestDealers = async () => {
     
     const client = new MongoClient(url, { useUnifiedTopology: true });  
 
-    //will pull all DB data, probably needs argument. 
-    const getData = async (  ) => {
+    const getData = async ( north, south, east, west ) => {
         let dealers;
-        let outerPromise = () => {
+        let dbConnectionPromise = () => {
             return new Promise((res, rej) => {
                 client.connect(async (err, client) => {
                     if (err) console.log(`Get data Connect Error: `, err);
@@ -44,7 +43,7 @@ const requestDealers = async () => {
                     const db = client.db(dbName);
                     const col = db.collection('dealers');
 
-                    let myPromise = () => {
+                    let dataQueryPromise = () => {
                         return new Promise((resolve, reject) => {
                             col.findOne({name: "dealerJson"}, (err, res) => {
                                 if (err) {
@@ -57,23 +56,36 @@ const requestDealers = async () => {
                                     let dbDealers = [];
                                     resolve(dbDealers);
                                 } else {
-                                    console.log("Found dealer data, sending up")
-                                    const dbDealers = res.data;
+                                    let filterFunc = (dealer, i) => {
+                                        let dealerLat = parseFloat(dealer.lat);
+                                        let dealerLng = parseFloat(dealer.lng);
+                                        if (dealerLat < north && dealerLat > south && dealerLng > west && dealerLng < east) {
+                                            return dealer;
+                                        }
+                                    }
+
+                                    const dbDealers = res.data.filter(filterFunc);  
+                                    console.log(`Found ${dbDealers.length} dealers, sending data up.`)                                  
                                     resolve(dbDealers);
                                 }
                             })
                         })
                     }
-                    dealers = await myPromise();
+                    dealers = await dataQueryPromise();
                     res(dealers);
                 });
             })
         }
-        let dealerData = await outerPromise();
+        let dealerData = await dbConnectionPromise();
         return dealerData;
     };
-    let finalData = await getData();
-    console.log(`getData(); `, finalData[0]);
+
+    let finalData = {};
+    if (north) {
+        finalData = await getData(north, south, east, west);
+    } else {
+        console.log(`No location provided, cannot search DB.`)
+    }
     return finalData;
 };
 
