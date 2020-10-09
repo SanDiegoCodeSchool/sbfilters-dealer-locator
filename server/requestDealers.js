@@ -13,25 +13,25 @@ const dealerJson = require('../savedFiles/locations.json');
 
 const requestDealers = async (north, south, east, west) => {
     //Specify the Amazon DocumentDB cert
-    // const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/rds-combined-ca-bundle.pem'), 'utf8')];
-    // const MongoClient = require('mongodb').MongoClient;
-    // const url = `mongodb://${process.env.DOCUMENT_USER}:${process.env.DOCUMENT_PASSWORD}@${process.env.DOCUMENT_URL}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
+    const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/rds-combined-ca-bundle.pem'), 'utf8')];
+    const MongoClient = require('mongodb').MongoClient;
+    const url = `mongodb://${process.env.DOCUMENT_USER}:${process.env.DOCUMENT_PASSWORD}@${process.env.DOCUMENT_URL}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
     
-    // const client = new MongoClient(url, { 
-    //     sslValidate: true,
-    //     sslCA: ca,
-    //     useNewUrlParser: true,
-    //     useUnifiedTopology: true
-    // }); 
-    // const dbName = 'sbdealers';
+    const client = new MongoClient(url, { 
+        sslValidate: true,
+        sslCA: ca,
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    }); 
+    const dbName = 'sbdealers';
 
     //Local hosted mongo connection
-    const MongoClient = require('mongodb').MongoClient;
-    const assert = require('assert');
-    const url = 'mongodb://localhost:27017';
-    const dbName = 'sbdealers';
+    // const MongoClient = require('mongodb').MongoClient;
+    // const assert = require('assert');
+    // const url = 'mongodb://localhost:27017';
+    // const dbName = 'sbdealers';
     
-    const client = new MongoClient(url, { useUnifiedTopology: true });  
+    // const client = new MongoClient(url, { useUnifiedTopology: true });  
 
     const getData = async ( north, south, east, west ) => {
         let dealers;

@@ -8,13 +8,34 @@ const defaultLocation = sanDiego;
 const zoomLevel = 12;
 //how may seconds to wait to place the markers after the map loads, move up if page loads crazy slow so that map exists when you try to drop pins
 const delayAfterMapLoad = 2000;
+//single place to update base URL for server to connect DB
+const baseURLofServer = 'https://d444240d8d12.ngrok.io';
 
 $(document).ready(async ()=> {
     console.log(`Dom Loaded`)
+    // let scriptExists = await makeScript();
+    // console.log(scriptExists);
+
     let userLocation = await getLocation();
-    console.log(await userLocation);
-    pullUpNewMap(userLocation);
+    //make sure script had time to build
+    setTimeout(() => {
+        console.log(`creating map`)
+        pullUpNewMap(userLocation);
+    }, delayAfterMapLoad + 2000); 
 });
+
+// const makeScript = async () => {
+//     let peanutButter = await fetch('/fiddleSticks');
+//     let jelly = await peanutButter.json();
+//     let pbj = jelly.key;
+
+//     let mapScript = document.createElement('script');
+//     mapScript.type = 'text/javascript';
+//     mapScript.src = `https://maps.googleapis.com/maps/api/js?key=${pbj}&libraries=&v=weekly`;    
+//     document.getElementsByTagName('head')[0].appendChild(mapScript);
+
+//     return true;
+// }
 
 const pullUpNewMap = async (location) => {
     await initMap(location);
@@ -98,7 +119,7 @@ const getNewCenter = () => {
 
 const getAllDealers = async () => {
     try {
-        let rawDealers = await fetch('/dealers')
+        let rawDealers = await fetch(`/dealers`)
         let dealers = await rawDealers.json();
         return dealers;
     } catch (err) {
@@ -167,12 +188,21 @@ document.getElementById('testButton').addEventListener('click', async (event) =>
 
 })
 
-document.getElementById('search-button').addEventListener('click', async (event) => {
-    console.log('clicked');
-    let userInput = document.getElementById('user-input').value;
-    //Use google places API for real searching? 
+// document.getElementById('search-button').addEventListener('click', async (event) => {
+//     console.log('clicked');
+    
+//     let userInput = document.getElementById('user-input').value;
+//     let userSearchValue = encodeURI(userInput);
+//     //Use google places API for real searching? 
+    
+//     fetch(`/places?i=${userSearchValue}`)
+//     .then((res) => res.json())
+//     .then((data) => {
+//         console.log(`placesData: `,  data);
+//     })
+//     .catch(err => console.log(`FetchError: `. err))
 
-    //re-initialize map with new location (location needs to be {lat, lng})
-    pullUpNewMap(detroit);
-})
+//     //re-initialize map with new location (location needs to be {lat, lng})
+//     // pullUpNewMap(detroit);
+// })
 

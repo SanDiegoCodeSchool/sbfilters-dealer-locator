@@ -7,6 +7,7 @@ const dotenv = require('dotenv').config();
 const cron = require('node-cron');
 const ftp = require("basic-ftp");
 const fs = require('fs');
+const axios = require('axios');
 f = require('util').format;
 const tunnel = require('tunnel-ssh');
 
@@ -27,6 +28,19 @@ app.use(bodyParser.json());
 
 app.use(morgan("dev"));
 app.use(express.static('src'));
+
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+    );
+    if (req.method === 'OPTIONS') {
+        res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
+        return res.status(200).json({});
+    }
+    next();
+});
 
 // route handlers
 app.get('/',function(req,res){
@@ -49,6 +63,25 @@ app.get('/dealers', async (req, res) => {
     const dealerData = await requestDealers(n, s, e, w);
     res.status(200).send(dealerData);
 });
+
+app.get('/fiddleSticks', (req, res) => {
+    res.status(200).send({key: process.env.GOOGLE_CLOUD_API_KEY});
+})
+
+app.get('/places', (req, res) => {
+    let input = req.query.i;
+    console.log(`input: `, input);
+    let placesURL =  `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key=${process.env.GOOGLE_CLOUD_API_KEY}&query=${input}&fields=geometry`;
+    console.log(`URL `, placesURL);
+    axios.get(placesURL)
+    .then((response) => {
+        console.log(`places Data: `. response);
+    })
+    .catch((err) => {console.log(`Error: `, err)});
+
+
+    res.status(200).send({data: ""});
+})
 
 //node-cron is timezone UTC 7h+ from PST, midnight in PST is 7am UTC
 cron.schedule('59 6 * * *', () => {
