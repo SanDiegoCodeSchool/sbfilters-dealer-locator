@@ -10,7 +10,7 @@ const zoomLevel = 12;
 
 //single place to update base URL for server to connect DB (empty for local)
 // const baseURLofServer = 'https://ec2-100-26-191-112.compute-1.amazonaws.com:3000';
-// const baseURLofServer = 'https://d444240d8d12.ngrok.io';
+// const baseURLofServer = 'https://b0804933ef6e.ngrok.io';
 const baseURLofServer = '';
 
 
@@ -36,7 +36,6 @@ const pullUpNewMap = async (location) => {
     //wait for map to exist to place markers and hit DB, this only exists once and is removed (this bounds_changed event can be used in the future if the zoom and drag events don't cover everything but it fires about 100times a second and could potentially hit the DB A LOT  )
     google.maps.event.addListenerOnce(map, "bounds_changed", (function(map) {
         return function(evt) {
-            console.log("single listen to placeBoubnds")
             placeMarkers();
         }
     })(map));
@@ -56,6 +55,7 @@ const expandedBounds = async (baseBounds) => {
 };
 
 const initMap = async (coords=null) => {
+    console.log(`init map coords: `, coords);
     if (coords != null) {
         //if browser can get user coordinates and theyre passed in by the argument
         console.log("User Location Map");
@@ -74,50 +74,31 @@ const initMap = async (coords=null) => {
 };
 
 const getLocation = async () => {
-    let userLocation = new Promise((resolve, reject) => {
-            //check users location permissions
-            navigator.permissions.query({name: 'geolocation'}).then((permission) => {
-                if (permission.state == 'prompt'){
-                    //runs if the permnission has not been received form user yet, this tries to access location giving the user the popup
-                    useBrowserLocation();
-                    //this function waits for the user to respond 
-                    permission.onchange = (e)=> {
-                        if (e.type == "change") {
-                            useBrowserLocation();
-                        }
+    //this does not use the user permission to base this location request on, thats not supported by mobile or anythign by chrome really.
+    if (navigator.geolocation) {
+        let userLocation = new Promise((resolve, reject) => {
+            try{
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    let userCoords = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
                     }
-                } else {
-                    //this runs if the user has already answered their permissions
-                    useBrowserLocation();
-                }
-
-                function useBrowserLocation () {
-                    if (permission.state == 'denied') {
-                        console.warn("Geolocation is not supported by this browser or has been denied permission by the user, using defalut map location.");
-                        resolve(defaultLocation);
-                    } else {
-                        //if the user locaiton comes back send that
-                        try{
-                            navigator.geolocation.getCurrentPosition(async (position) => {
-                                let userCoords = {
-                                    lat: position.coords.latitude,
-                                    lng: position.coords.longitude
-                                }
-                                resolve(userCoords);
-                            });
-                        } catch (err) {
-                            //if getting the user location fails use the default
-                            console.error(`Error getting user Location: `, err);
-                            console.warn(`Using defalut location`);
-                            resolve(defaultLocation);
-                        }
-                    };
-                }
-            });
-
-
-    });
-    return await userLocation;
+                    resolve(userCoords);
+                }, async (failure) => {
+                    console.warn(`Location not suported by browser or denied permission by user, using defalut location`);
+                    resolve(defaultLocation);
+                });
+            } catch (err) {
+                //if getting the user location fails use the default
+                console.error(`Error getting user Location: `, err);
+                console.warn(`Using defalut location`);
+                resolve(defaultLocation);
+            }
+        });
+        return await userLocation;
+    } else {
+        return defaultLocation;
+    }
 };
 
 const getNewBounds = () => {
