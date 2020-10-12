@@ -16,7 +16,7 @@ let local = false;
 
 const requestDealers = async (north, south, east, west) => {
     let client;
-    if (local) {
+    if (local == true) {
         console.log(`local in if: `, local);
         //Local hosted mongo connection
         const MongoClient = require('mongodb').MongoClient;
@@ -26,6 +26,7 @@ const requestDealers = async (north, south, east, west) => {
         
         client = new MongoClient(url, { useUnifiedTopology: true });  
     } else {
+        console.log("using live connection")
         //Specify the Amazon DocumentDB cert
         const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/rds-combined-ca-bundle.pem'), 'utf8')];
         const MongoClient = require('mongodb').MongoClient;
