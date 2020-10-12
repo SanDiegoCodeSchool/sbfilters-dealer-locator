@@ -12,7 +12,7 @@ const dealerJson = require('../savedFiles/locations.json');
 // const testData = require('../savedFiles/newLocations.json');
 
 //set var to true for local mongo host and false for live connection. 
-let local = true;
+let local = false;
 
 const requestDealers = async (north, south, east, west) => {
     let client;
