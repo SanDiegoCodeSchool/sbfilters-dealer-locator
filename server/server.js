@@ -64,10 +64,8 @@ app.get('/dealers', async (req, res) => {
     res.status(200).send(dealerData);
 });
 
-app.get('/fiddleSticks', (req, res) => {
-    res.status(200).send({key: process.env.GOOGLE_CLOUD_API_KEY});
-})
 
+//here to handle the google Places API eventually
 app.get('/places', (req, res) => {
     let input = req.query.i;
     console.log(`input: `, input);

@@ -1,56 +1,65 @@
-let map, dealers;
-let inc = 0;
+let map, dealers, lastMapSearchArea;
+let firstRender = true;
 const sanDiego = { lat: 32.715736, lng: -117.161087 };
 const detroit = { lat: 42.3314, lng: -83.0458 };
+const SBHeadquarters = { lat: 34.062383, lng: -117.468727 };
 //location to use if User denies persmission to browser for location or browser is super old
-const defaultLocation = sanDiego;
+const defaultLocation = SBHeadquarters;
 //how far to zoom the map in when it loads, 0 is whole world, 12 is most of a large city, 20 is a couple hundred feet wide
 const zoomLevel = 12;
-//how may seconds to wait to place the markers after the map loads, move up if page loads crazy slow so that map exists when you try to drop pins
-const delayAfterMapLoad = 2000;
-//single place to update base URL for server to connect DB
-const baseURLofServer = 'https://d444240d8d12.ngrok.io';
+
+//single place to update base URL for server to connect DB (empty for local)
+// const baseURLofServer = 'https://ec2-100-26-191-112.compute-1.amazonaws.com:3000';
+// const baseURLofServer = 'https://d444240d8d12.ngrok.io';
+const baseURLofServer = '';
+
 
 $(document).ready(async ()=> {
     console.log(`Dom Loaded`)
-    // let scriptExists = await makeScript();
-    // console.log(scriptExists);
-
     let userLocation = await getLocation();
-    //make sure script had time to build
-    setTimeout(() => {
-        console.log(`creating map`)
-        pullUpNewMap(userLocation);
-    }, delayAfterMapLoad + 2000); 
+    pullUpNewMap(userLocation);
 });
-
-// const makeScript = async () => {
-//     let peanutButter = await fetch('/fiddleSticks');
-//     let jelly = await peanutButter.json();
-//     let pbj = jelly.key;
-
-//     let mapScript = document.createElement('script');
-//     mapScript.type = 'text/javascript';
-//     mapScript.src = `https://maps.googleapis.com/maps/api/js?key=${pbj}&libraries=&v=weekly`;    
-//     document.getElementsByTagName('head')[0].appendChild(mapScript);
-
-//     return true;
-// }
 
 const pullUpNewMap = async (location) => {
     await initMap(location);
-    setTimeout(placeMarkers, delayAfterMapLoad);
-    map.addListener("dragend", function() {
-        console.log(`Dragged, resetting markers`);
-        setTimeout(placeMarkers, delayAfterMapLoad);
-    })
-}
 
-const initMap = (coords=null) => {
+    //listener for each drag that checks the boundaries. 
+    map.addListener("dragend", () => {
+        compareNewBounds();
+    })
+
+    //listener for each zoom change that checks boundaries. 
+    map.addListener("zoom_changed", () => {
+        compareNewBounds();
+    })
+    
+    //wait for map to exist to place markers and hit DB, this only exists once and is removed (this bounds_changed event can be used in the future if the zoom and drag events don't cover everything but it fires about 100times a second and could potentially hit the DB A LOT  )
+    google.maps.event.addListenerOnce(map, "bounds_changed", (function(map) {
+        return function(evt) {
+            console.log("single listen to placeBoubnds")
+            placeMarkers();
+        }
+    })(map));
+};
+
+const expandedBounds = async (baseBounds) => {
+    const height = baseBounds.north - baseBounds.south;
+    const width = baseBounds.east - baseBounds.west;
+    const expandedBounds = {
+        north: baseBounds.north + height,
+        south: baseBounds.south - height,
+        east: baseBounds.east + width,
+        west: baseBounds.west - width
+    }
+
+    return expandedBounds;
+};
+
+const initMap = async (coords=null) => {
     if (coords != null) {
         //if browser can get user coordinates and theyre passed in by the argument
         console.log("User Location Map");
-        map = new google.maps.Map(document.getElementById("map"), {
+        map = await new google.maps.Map(document.getElementById("map"), {
             center: { lat: coords.lat, lng: coords.lng },
             zoom: zoomLevel,
         });
@@ -66,31 +75,48 @@ const initMap = (coords=null) => {
 
 const getLocation = async () => {
     let userLocation = new Promise((resolve, reject) => {
-            //check if the user has denied location permission if so send the default location
+            //check users location permissions
             navigator.permissions.query({name: 'geolocation'}).then((permission) => {
-                if (permission.state == 'denied') {
-                    console.log("Geolocation is not supported by this browser or has been denied permission by the user.");
-                    resolve(defaultLocation);
-                } else {
-                    //if the user locaiton comes back send that
-                    try{
-                        navigator.geolocation.getCurrentPosition(async (position) => {
-                            let userCoords = {
-                                lat: position.coords.latitude,
-                                lng: position.coords.longitude
-                            }
-                            resolve(userCoords);
-                        });
-                    } catch (err) {
-                        //if getting the user location fails use the default
-                        console.log(`Error getting user Location: `, err);
-                        console.log(`Using defalut location`);
-                        resolve(defaultLocation);
+                if (permission.state == 'prompt'){
+                    //runs if the permnission has not been received form user yet, this tries to access location giving the user the popup
+                    useBrowserLocation();
+                    //this function waits for the user to respond 
+                    permission.onchange = (e)=> {
+                        if (e.type == "change") {
+                            useBrowserLocation();
+                        }
                     }
+                } else {
+                    //this runs if the user has already answered their permissions
+                    useBrowserLocation();
                 }
-            })
+
+                function useBrowserLocation () {
+                    if (permission.state == 'denied') {
+                        console.warn("Geolocation is not supported by this browser or has been denied permission by the user, using defalut map location.");
+                        resolve(defaultLocation);
+                    } else {
+                        //if the user locaiton comes back send that
+                        try{
+                            navigator.geolocation.getCurrentPosition(async (position) => {
+                                let userCoords = {
+                                    lat: position.coords.latitude,
+                                    lng: position.coords.longitude
+                                }
+                                resolve(userCoords);
+                            });
+                        } catch (err) {
+                            //if getting the user location fails use the default
+                            console.error(`Error getting user Location: `, err);
+                            console.warn(`Using defalut location`);
+                            resolve(defaultLocation);
+                        }
+                    };
+                }
+            });
+
+
     });
-    console.log(await userLocation);
     return await userLocation;
 };
 
@@ -102,16 +128,18 @@ const getNewBounds = () => {
     let south = parseFloat(boundsArr[0]);
     let east = parseFloat(boundsArr[3]);
 
-    return {
+    let boundsObj = {
         north: north, 
         south: south, 
         east: east, 
         west: west
     };
+
+    return boundsObj;
 };
 
 const getNewCenter = () => {
-    //returns String right now, maybe make it refurn numbers? 
+    //returns String right now, maybe make it return numbers? 
     let rawCenter = map.getCenter();
     let center = new google.maps.LatLng(rawCenter.lat(), rawCenter.lng());
     return center.toString();
@@ -119,26 +147,25 @@ const getNewCenter = () => {
 
 const getAllDealers = async () => {
     try {
-        let rawDealers = await fetch(`/dealers`)
+        let rawDealers = await fetch(`${baseURLofServer}/dealers`)
         let dealers = await rawDealers.json();
         return dealers;
     } catch (err) {
-        console.log(`Error fetching from server route: `, err);
+        console.error(`Error fetching from server route: `, err);
     }
     return [];
-}
+};
 
 const getLocalDealers = async (bounds) => {
-    console.log(`getLocalDealers location: `, bounds.west);
     try {
-        let rawDealers = await fetch(`/dealers?n=${bounds.north}&s=${bounds.south}&e=${bounds.east}&w=${bounds.west}`)
+        let rawDealers = await fetch(`${baseURLofServer}/dealers?n=${bounds.north}&s=${bounds.south}&e=${bounds.east}&w=${bounds.west}`)
         let dealers = await rawDealers.json();
         return dealers;
     } catch (err) {
-        console.log(`Error fetching from server route: `, err);
+        console.error(`Error fetching from server route: `, err);
     }
     return [];
-}
+};
 
 const infoContent = (dealer) => {
     if (dealer.address2 != ""){
@@ -164,10 +191,25 @@ const infoContent = (dealer) => {
     }
 };
 
+const compareNewBounds = async () => {
+    let mapBounds = await getNewBounds();
+
+    if (mapBounds.north > lastMapSearchArea.north || mapBounds.south < lastMapSearchArea.south || mapBounds.east > lastMapSearchArea.east || mapBounds.west < lastMapSearchArea.west) {
+        //compares new bounds and old search area, if the bounds contain anything outside the previous search area get new dealers, place new pins etc.. 
+        console.log("placing new dealer markers")
+        placeMarkers();
+    } else {
+        //if the new map bounds are NOT outside the previous search area then don't bother hitting the DB again and re-placing markers
+        console.warn("Current Map Bounds are inside the previous search area, no need to place new markers");
+    }
+};
+
 const placeMarkers = async () => {
     let mapBounds = await getNewBounds();
-    const localDealers = await getLocalDealers(mapBounds);
+    let searchArea = await expandedBounds(mapBounds);
+    const localDealers = await getLocalDealers(searchArea);
 
+    console.log("new Markers comingin hot.")
     for (let i = 0; i < localDealers.length; i++) {
         //create the info card popup for each dealer
         const infoWindow = new google.maps.InfoWindow({content: infoContent(localDealers[i])})
@@ -179,15 +221,18 @@ const placeMarkers = async () => {
             infoWindow.open(map, dealerMarker);
         })
     }
-}
+    lastMapSearchArea = searchArea; 
+};
 
 document.getElementById('testButton').addEventListener('click', async (event) => {
     console.log('clicked');
     const myHouse = {lat: 32.722124799999996, lng: -117.09317120000001};
     let houseMarker = new google.maps.Marker({position: myHouse, map: map});
 
-})
+});
 
+
+//This is here incase we want to turn on the Google Places API at some point
 // document.getElementById('search-button').addEventListener('click', async (event) => {
 //     console.log('clicked');
     

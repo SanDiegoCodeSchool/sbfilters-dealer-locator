@@ -11,34 +11,43 @@ const tunnel = require('tunnel-ssh');
 const dealerJson = require('../savedFiles/locations.json');
 // const testData = require('../savedFiles/newLocations.json');
 
-const requestDealers = async (north, south, east, west) => {
-    //Specify the Amazon DocumentDB cert
-    const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/rds-combined-ca-bundle.pem'), 'utf8')];
-    const MongoClient = require('mongodb').MongoClient;
-    const url = `mongodb://${process.env.DOCUMENT_USER}:${process.env.DOCUMENT_PASSWORD}@${process.env.DOCUMENT_URL}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
-    
-    const client = new MongoClient(url, { 
-        sslValidate: true,
-        sslCA: ca,
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    }); 
-    const dbName = 'sbdealers';
+//set var to true for local mongo host and false for live connection. 
+let local = true;
 
-    //Local hosted mongo connection
-    // const MongoClient = require('mongodb').MongoClient;
-    // const assert = require('assert');
-    // const url = 'mongodb://localhost:27017';
-    // const dbName = 'sbdealers';
-    
-    // const client = new MongoClient(url, { useUnifiedTopology: true });  
+const requestDealers = async (north, south, east, west) => {
+    let client;
+    if (local) {
+        console.log(`local in if: `, local);
+        //Local hosted mongo connection
+        const MongoClient = require('mongodb').MongoClient;
+        const assert = require('assert');
+        const url = 'mongodb://localhost:27017';
+        // const dbName = 'sbdealers';
+        
+        client = new MongoClient(url, { useUnifiedTopology: true });  
+    } else {
+        //Specify the Amazon DocumentDB cert
+        const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/rds-combined-ca-bundle.pem'), 'utf8')];
+        const MongoClient = require('mongodb').MongoClient;
+        const url = `mongodb://${process.env.DOCUMENT_USER}:${process.env.DOCUMENT_PASSWORD}@${process.env.DOCUMENT_URL}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
+        
+        client = new MongoClient(url, { 
+            sslValidate: true,
+            sslCA: ca,
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        }); 
+        // const dbName = 'sbdealers';
+    }
+
+    const dbName = 'sbdealers';
 
     const getData = async ( north, south, east, west ) => {
         let dealers;
         let dbConnectionPromise = () => {
             return new Promise((res, rej) => {
                 client.connect(async (err, client) => {
-                    if (err) console.log(`Get data Connect Error: `, err);
+                    if (err) console.error(`Get data Connect Error: `, err);
                     console.log("Connected to DB to Get Data");
                     const db = client.db(dbName);
                     const col = db.collection('dealers');
@@ -52,7 +61,7 @@ const requestDealers = async (north, south, east, west) => {
                                 };
                 
                                 if (res == null) {
-                                    console.log(`Couldn't find dealer Data`);
+                                    console.error(`Couldn't find dealer Data`);
                                     let dbDealers = [];
                                     resolve(dbDealers);
                                 } else {
