@@ -7,18 +7,33 @@
     <title>Local map tester</title>
     <link rel="shortcut icon" href="#" />
     <link rel="stylesheet" href="./css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAytqFbjNHSqmcjOBNVN85AmL3bubYNsEQ&libraries=&v=weekly" defer></script>
-
+    <script src="https://unpkg.com/@google/markerclustererplus@4.0.1/dist/markerclustererplus.min.js"></script>
 </head>
 <body>
-    <button id="testButton">Test Button</button>
-    <div id="map" style="min-width: 600px; min-height: 400px;"></div>
-    <!-- This is here incase we want to use the Google Places API in the future -->
-    <!-- <section type="text" placeholder="Enter your City and State or Zipcode" class="input-container">
+    <button id="testButton">TestButton</button>
+    <button id="recenter">Recenter map</button>
+    <section type="text" placeholder="Enter your City and State or Zipcode" class="input-container">
         <input id="user-input"></input>
         <button id="search-button" class="search-button">Search</button>
-    </section> -->
+    </section>
+    <div id="map" style="min-width: 600px; min-height: 400px;"></div>
+    <div id="list"></div>
+    <!-- This is being left here temporatily to allow quick styling edits if needed -->
+    <!-- <div class="list-container">
+        <div class="list-item">
+            <div class="number-title">
+                <h4 class="dealer-index">13</h4>
+                <h4 class="dealer-title">Some Dealer</h4>
+            </div>
+            <p class="dealer-phone">2488540315</p>
+            <p class="dealer-url">https://something.com</p>
+        </div>
+    </div> -->
+    <!-- This is here incase we want to use the Google Places API in the future -->
+  
     <script src="./js/locations.js"></script>
 </body>
 </html>

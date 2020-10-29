@@ -12,19 +12,19 @@ const dealerJson = require('../savedFiles/locations.json');
 // const testData = require('../savedFiles/newLocations.json');
 
 //set var to true for local mongo host and false for live connection. 
-let local = false;
+let local = true;
 
 const requestDealers = async (north, south, east, west) => {
     let client;
     if (local == true) {
-        console.log(`local in if: `, local);
+        console.log(`local connection: `, local);
         //Local hosted mongo connection
         const MongoClient = require('mongodb').MongoClient;
         const assert = require('assert');
-        const url = 'mongodb://localhost:27017';
-        // const dbName = 'sbdealers';
-        
-        client = new MongoClient(url, { useUnifiedTopology: true });  
+        const url = process.env.MONGODB_URL;
+        client = new MongoClient(url, {
+            useUnifiedTopology: true
+        });  
     } else {
         console.log("using live connection")
         //Specify the Amazon DocumentDB cert
@@ -38,7 +38,6 @@ const requestDealers = async (north, south, east, west) => {
             useNewUrlParser: true,
             useUnifiedTopology: true
         }); 
-        // const dbName = 'sbdealers';
     }
 
     const dbName = 'sbdealers';

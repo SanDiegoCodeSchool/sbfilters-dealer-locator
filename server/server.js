@@ -1,21 +1,15 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
-const path = require('path');
 const fileUpload = require('express-fileupload');
 const dotenv = require('dotenv').config();
 const cron = require('node-cron');
-const ftp = require("basic-ftp");
-const fs = require('fs');
 const axios = require('axios');
 f = require('util').format;
-const tunnel = require('tunnel-ssh');
 
 const updateDealers = require('./updateDealers');
 const requestDealers = require('./requestDealers');
-
-const dealerJson = require('../savedFiles/locations.json');
-// const testData = require('../savedFiles/newLocations.json');
+const createDealers = require('./createDealers');
 
 // create the express server
 const app = express();
@@ -42,15 +36,19 @@ app.use((req, res, next) => {
     next();
 });
 
-// route handlers
 app.get('/',function(req,res){
     console.log('someone is trying to get the root...');
     res.status(200)
 });
 
+app.get('/createDealers', async (req , res) => {
+    createDealers();
+    res.status(200).send("Finding or creating DB entry");
+});
+
 app.get('/update', async (req , res) => {
     updateDealers();
-    res.status(200).send("connected");
+    res.status(200).send("Updating DB with new data.");
 });
 
 app.get('/dealers', async (req, res) => {
@@ -58,27 +56,40 @@ app.get('/dealers', async (req, res) => {
     const s = parseFloat(req.query.s);
     const e = parseFloat(req.query.e);
     const w = parseFloat(req.query.w);
-    // console.log(`n${n} s${s} e${e} w${w}`)
     console.log("Retreiving dealers from the DB");
     const dealerData = await requestDealers(n, s, e, w);
     res.status(200).send(dealerData);
 });
 
-
-//here to handle the google Places API eventually
-app.get('/places', (req, res) => {
+app.get('/places', async (req, res) => {
     let input = req.query.i;
-    console.log(`input: `, input);
-    let placesURL =  `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key=${process.env.GOOGLE_CLOUD_API_KEY}&query=${input}&fields=geometry`;
-    console.log(`URL `, placesURL);
-    axios.get(placesURL)
-    .then((response) => {
-        console.log(`places Data: `. response);
-    })
-    .catch((err) => {console.log(`Error: `, err)});
+    //this url is currently only requesting the locations name and geometry(lat/lng), there are more fields avaiable should those be necessary in the future for more robust searching.
+    let placesURL =  `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key=${process.env.GOOGLE_CLOUD_API_KEY}&input=${input}&inputtype=textquery&fields=name,geometry`;
+    try {
+        let placesData =  await axios.get(placesURL);
+        //if there are results
+        if (placesData.data.candidates.length != 0) {
+            let placeName =  placesData.data.candidates[0].name;
+            let placeCoord = placesData.data.candidates[0].geometry; 
 
+            res.status(200).send({
+                name: placeName,
+                coords: placeCoord
+            });
+        } else {
+            //if there are no search results returned from the API
+            res.status(200).send({
+                name: "none found",
+                coords: {
+                    lat: 0,
+                    lng: 0
+                }
+            })
+        }
 
-    res.status(200).send({data: ""});
+    }catch (err) {
+        console.log(`Error: `, err)
+    }
 })
 
 //node-cron is timezone UTC 7h+ from PST, midnight in PST is 7am UTC
