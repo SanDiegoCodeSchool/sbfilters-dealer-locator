@@ -14,6 +14,10 @@ const createDealers = require('./createDealers');
 // create the express server
 const app = express();
 
+//local hosted Mongo connection for testing: true for local, false for live
+let local = process.env.IS_LOCAL === 'false' ? false : true;
+console.log(local);
+
 // middleware
 app.use(fileUpload({createParentPath: true}));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -42,12 +46,12 @@ app.get('/',function(req,res){
 });
 
 app.get('/createDealers', async (req , res) => {
-    createDealers();
+    createDealers(local);
     res.status(200).send("Finding or creating DB entry");
 });
 
 app.get('/update', async (req , res) => {
-    updateDealers();
+    updateDealers(local);
     res.status(200).send("Updating DB with new data.");
 });
 
@@ -57,7 +61,7 @@ app.get('/dealers', async (req, res) => {
     const e = parseFloat(req.query.e);
     const w = parseFloat(req.query.w);
     console.log("Retreiving dealers from the DB");
-    const dealerData = await requestDealers(n, s, e, w);
+    const dealerData = await requestDealers(n, s, e, w, local);
     res.status(200).send(dealerData);
 });
 
@@ -95,7 +99,7 @@ app.get('/places', async (req, res) => {
 //node-cron is timezone UTC 7h+ from PST, midnight in PST is 7am UTC
 cron.schedule('59 6 * * *', () => {
     console.log("running at 11:59pm PST, 6:59am UTC");
-    updateDealers();
+    updateDealers(local);
 });
 
 module.exports = app;

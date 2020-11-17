@@ -1,25 +1,24 @@
-const bodyParser = require("body-parser");
+// const bodyParser = require("body-parser");
 const path = require('path');
-const fileUpload = require('express-fileupload');
-const dotenv = require('dotenv').config();
-const cron = require('node-cron');
-const ftp = require("basic-ftp");
+// const fileUpload = require('express-fileupload');
+// const dotenv = require('dotenv').config();
+// const cron = require('node-cron');
+// const ftp = require("basic-ftp");
 const fs = require('fs');
 f = require('util').format;
-const tunnel = require('tunnel-ssh');
+// const tunnel = require('tunnel-ssh');
 
 const dealerJson = require('../savedFiles/locations.json');
 // const testData = require('../savedFiles/newLocations.json');
 
 //set var to true for local mongo host and false for live connection. 
-let local = true;
 
-const requestDealers = async (north, south, east, west) => {
+const requestDealers = async (north, south, east, west, local) => {
     let client;
+    const MongoClient = require('mongodb').MongoClient;
     if (local == true) {
         console.log(`local connection: `, local);
         //Local hosted mongo connection
-        const MongoClient = require('mongodb').MongoClient;
         const assert = require('assert');
         const url = process.env.MONGODB_URL;
         client = new MongoClient(url, {
@@ -28,10 +27,8 @@ const requestDealers = async (north, south, east, west) => {
     } else {
         console.log("using live connection")
         //Specify the Amazon DocumentDB cert
-        const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/rds-combined-ca-bundle.pem'), 'utf8')];
-        const MongoClient = require('mongodb').MongoClient;
+        const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/pem/sdcs-sb.pem'), 'utf8')];
         const url = `mongodb://${process.env.DOCUMENT_USER}:${process.env.DOCUMENT_PASSWORD}@${process.env.DOCUMENT_URL}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
-        
         client = new MongoClient(url, { 
             sslValidate: true,
             sslCA: ca,

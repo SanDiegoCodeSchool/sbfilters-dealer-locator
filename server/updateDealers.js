@@ -1,31 +1,38 @@
+const path = require('path');
 const ftp = require("basic-ftp");
+const fs = require('fs');
 f = require('util').format;
 
 const dealerJson = require('../savedFiles/locations.json');
 
-const updateDealers = async () => {
-    //AWS MONGO Connection
-    //Specify the Amazon DocumentDB cert
-    // const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/rds-combined-ca-bundle.pem'), 'utf8')];
-    // const MongoClient = require('mongodb').MongoClient;
-    // const url = `mongodb://${process.env.DOCUMENT_USER}:${process.env.DOCUMENT_PASSWORD}@${process.env.DOCUMENT_URL}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
-    
-    // const client = new MongoClient(url, { 
-    //     sslValidate: true,
-    //     sslCA: ca,
-    //     useNewUrlParser: true,
-    //     useUnifiedTopology: true
-    // }); 
-
-    //Local hosted mongo connection
+const updateDealers = async (local) => {
     const MongoClient = require('mongodb').MongoClient;
-    const assert = require('assert');
-    const url = process.env.MONGODB_URL;
-    
+    let client;
+    if (local == true) {
+        console.log(`local connection: `);
+        const assert = require('assert');
+        const url = process.env.MONGODB_URL;
+        client = new MongoClient(url, {
+            useUnifiedTopology: true
+        });  
+    } else {
+        console.log(`using live connection`)
+        const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/pem/sdcs-sb.pem'), 'utf8')];
+        const url = `mongodb://${process.env.DOCUMENT_USER}:${process.env.DOCUMENT_PASSWORD}@${process.env.DOCUMENT_URL}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
+        client = new MongoClient(url, { 
+            sslValidate: true,
+            sslCA: ca,
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        }); 
+        console.log(`1: `, client);
+    }
+
     const dbName = 'sbdealers';
-    const client = new MongoClient(url, { useUnifiedTopology: true });  
 
     const getDBData = (mivaData) => {
+        console.log(`2: `, client);
+
         client.connect((err, client) => {
             if (err) console.log(`Get data Connect Error: `, err);
             console.log("Connected to DB to Get Data");
@@ -90,19 +97,37 @@ const updateDealers = async () => {
         });
     }
     
+//Template site
+    // const mivaFtpCredentials = {
+    //     host: process.env.TEST_MIVA_HOST,
+    //     user: process.env.TEST_MIVA_USER,
+    //     password: process.env.TEST_MIVA_PASSWORD,
+    // };
+
+//Filters Live
+    const secureOptions = {
+        rejectUnauthorized: false,
+    };
+
     const mivaFtpCredentials = {
-        host: process.env.MIVA_HOST,
-        user: process.env.MIVA_USER,
-        password: process.env.MIVA_PASSWORD,
+        host: process.env.FILTERS_LIVE_MIVA_HOST,
+        user: process.env.FILTERS_LIVE_MIVA_USER,
+        password: process.env.FILTERS_LIVE_MIVA_PASSWORD,
+        secure: true, 
+        secureOptions: secureOptions
     };
 
     const mivaClient = new ftp.Client();
     mivaClient.ftp.verbose = true;
-    const filePathInMiva = `mm5/themes/shadows/custom-styles/testData/newLocations.json`;
     const filePathToLocalFile = `${__dirname}/newLocations.json`;
+    //Template Site filepath
+    const filePathInMiva = `mm5/themes/shadows/custom-styles/testData/newLocations.json`;
+    //Filters Filepath
+    //const filePathInMiva = ``;
+    
 
     try {
-        await mivaClient.access(mivaFtpCredentials);
+        // await mivaClient.access(mivaFtpCredentials);
         // mivaClient.trackProgress(info => {
         //     console.log("File", info.name)
         //     console.log("Type", info.type)
@@ -110,11 +135,16 @@ const updateDealers = async () => {
         //     console.log("Transferred Overall", info.bytesOverall)
         // })
         // console.log(`List: `, await mivaClient.list(`mm5/themes/shadows/custom-styles/testData`));
-        await mivaClient.downloadTo(filePathToLocalFile, filePathInMiva);
-        const mivaData = require(filePathToLocalFile);
+        //live miva data
+        // await mivaClient.downloadTo(filePathToLocalFile, filePathInMiva);
+        // const mivaData = require(filePathToLocalFile);
+        //testData
+        const mivaData = dealerJson;
+
         console.log(`Miva Data acquired, updating DB.`);
+        
         getDBData(mivaData);
-        mivaClient.close();
+        // mivaClient.close();
     } catch(err) {
         console.log(`Miva Error: `, err);
     }

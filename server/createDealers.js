@@ -1,37 +1,41 @@
-const bodyParser = require("body-parser");
+// const bodyParser = require("body-parser");
 const path = require('path');
-const fileUpload = require('express-fileupload');
-const dotenv = require('dotenv').config();
-const cron = require('node-cron');
-const ftp = require("basic-ftp");
+// const fileUpload = require('express-fileupload');
+// const dotenv = require('dotenv').config();
+// const cron = require('node-cron');
+// const ftp = require("basic-ftp");
 const fs = require('fs');
 f = require('util').format;
-const tunnel = require('tunnel-ssh');
+// const tunnel = require('tunnel-ssh');
 
 const dealerJson = require('../savedFiles/locations.json');
 // const testData = require('../savedFiles/newLocations.json');
 
-const createDealers = async () => {
-    //Specify the Amazon DocumentDB cert
-    // const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/rds-combined-ca-bundle.pem'), 'utf8')];
-    // const MongoClient = require('mongodb').MongoClient;
-    // const url = `mongodb://${process.env.DOCUMENT_USER}:${process.env.DOCUMENT_PASSWORD}@${process.env.DOCUMENT_URL}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
-    
-    // const client = new MongoClient(url, { 
-    //     sslValidate: true,
-    //     sslCA: ca,
-    //     useNewUrlParser: true,
-    //     useUnifiedTopology: true
-    // }); 
-    // const dbName = 'sbdealers';
-
-    //Local hosted mongo connection
+const createDealers = async (local) => {
     const MongoClient = require('mongodb').MongoClient;
-    const assert = require('assert');
-    const url = process.env.MONGODB_URL;
-    const dbName = 'sbdealers';
-    
-    const client = new MongoClient(url, { useUnifiedTopology: true });  
+    let client;
+    if (local == true) {
+        console.log(`local connection: `, local);
+        //Local hosted mongo connection
+        const assert = require('assert');
+        const url = process.env.MONGODB_URL;
+        client = new MongoClient(url, {
+            useUnifiedTopology: true
+        });  
+    } else {
+        console.log("using live connection")
+        //Specify the Amazon DocumentDB cert
+        const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/pem/sdcs-sb.pem'), 'utf8')];
+        const url = `mongodb://${process.env.DOCUMENT_USER}:${process.env.DOCUMENT_PASSWORD}@${process.env.DOCUMENT_URL}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
+        client = new MongoClient(url, { 
+            sslValidate: true,
+            sslCA: ca,
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        }); 
+    }
+
+    const dbName = 'sbdealers';  
 
     const insertData = () => {
         client.connect((err, client) => {
