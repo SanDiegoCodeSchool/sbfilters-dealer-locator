@@ -14,9 +14,8 @@ const createDealers = require('./createDealers');
 // create the express server
 const app = express();
 
-//local hosted Mongo connection for testing: true for local, false for live
+//local hosted Mongo connection for testing: false in .env for live, anything else for local
 let local = process.env.IS_LOCAL === 'false' ? false : true;
-console.log(local);
 
 // middleware
 app.use(fileUpload({createParentPath: true}));

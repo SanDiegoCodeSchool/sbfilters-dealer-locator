@@ -121,30 +121,30 @@ const updateDealers = async (local) => {
     mivaClient.ftp.verbose = true;
     const filePathToLocalFile = `${__dirname}/newLocations.json`;
     //Template Site filepath
-    const filePathInMiva = `mm5/themes/shadows/custom-styles/testData/newLocations.json`;
+    // const filePathInMiva = `mm5/themes/shadows/custom-styles/testData/newLocations.json`;
     //Filters Filepath
-    //const filePathInMiva = ``;
+    const filePathInMiva = `/httpdocs/mm5/themes/luxe/store_locator/locations.json`;
     
 
     try {
-        // await mivaClient.access(mivaFtpCredentials);
-        // mivaClient.trackProgress(info => {
-        //     console.log("File", info.name)
-        //     console.log("Type", info.type)
-        //     console.log("Transferred", info.bytes)
-        //     console.log("Transferred Overall", info.bytesOverall)
-        // })
-        // console.log(`List: `, await mivaClient.list(`mm5/themes/shadows/custom-styles/testData`));
-        //live miva data
-        // await mivaClient.downloadTo(filePathToLocalFile, filePathInMiva);
-        // const mivaData = require(filePathToLocalFile);
+        await mivaClient.access(mivaFtpCredentials);
+        mivaClient.trackProgress(info => {
+            console.log("File", info.name)
+            console.log("Type", info.type)
+            console.log("Transferred", info.bytes)
+            console.log("Transferred Overall", info.bytesOverall)
+        })
+        console.log(`List: `, await mivaClient.list(`/httpdocs/mm5/themes/luxe/store_locator/`));
+        // live miva data
+        await mivaClient.downloadTo(filePathToLocalFile, filePathInMiva);
+        const mivaData = require(filePathToLocalFile);
         //testData
-        const mivaData = dealerJson;
+        // const mivaData = dealerJson;
 
         console.log(`Miva Data acquired, updating DB.`);
         
         getDBData(mivaData);
-        // mivaClient.close();
+        mivaClient.close();
     } catch(err) {
         console.log(`Miva Error: `, err);
     }

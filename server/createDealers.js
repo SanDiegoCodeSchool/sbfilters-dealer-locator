@@ -26,8 +26,9 @@ const createDealers = async (local) => {
         console.log("using live connection")
         //Specify the Amazon DocumentDB cert
         const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/pem/sdcs-sb.pem'), 'utf8')];
+        console.log('ca: ', ca);
         const url = `mongodb://${process.env.DOCUMENT_USER}:${process.env.DOCUMENT_PASSWORD}@${process.env.DOCUMENT_URL}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
-        client = new MongoClient(url, { 
+        const client = new MongoClient(url, { 
             sslValidate: true,
             sslCA: ca,
             useNewUrlParser: true,
@@ -38,7 +39,7 @@ const createDealers = async (local) => {
     const dbName = 'sbdealers';  
 
     const insertData = () => {
-        client.connect((err, client) => {
+        client.connect((err, dbclient) => {
             if (err) console.log(`Insert Data Connect Error: `, err);
             console.log("Connected to DB to seed data");
             const db = client.db(dbName);
@@ -53,18 +54,19 @@ const createDealers = async (local) => {
     
 
     const checkIfDataAlreadyExists = () => {
-        client.connect((err, client) => {
+        console.log(`first client: `, client);
+        client.connect((err, dbclient) => {
             if (err) console.log(`Get data Connect Error: `, err);
-            console.log("Connected to DB to Get Data");
-            const db = client.db(dbName);
+            console.log("Connected to DB to Get Data", dbclient);
+            const db = dbclient.db(dbName);
             const col = db.collection('dealers');
 
             col.findOne({name: "dealerJson"}, async (err, res) => {
                 if (err) console.log(`Find Error: `, err);
                 //if It doesnt exist yet call the function that inserts it for the first time from the original local file of dealer json. 
                 if (res == null) {
-                    insertData();
                     console.log("Data not in the DB yet, seeding DB with data.")
+                    insertData();
                 } else {
                     //if it does already exist just console log that it already exists and bail. 
                     const dbDealers = res.data;
@@ -77,6 +79,7 @@ const createDealers = async (local) => {
     };
 
     checkIfDataAlreadyExists();
+    // insertData();
 
 };
 

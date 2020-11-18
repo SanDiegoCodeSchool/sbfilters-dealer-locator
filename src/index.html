@@ -7,7 +7,8 @@
     <title>Local map tester</title>
     <link rel="shortcut icon" href="#" />
     <link rel="stylesheet" href="./css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAytqFbjNHSqmcjOBNVN85AmL3bubYNsEQ&libraries=&v=weekly" defer></script>
     <script src="https://unpkg.com/@google/markerclustererplus@4.0.1/dist/markerclustererplus.min.js"></script>
@@ -19,8 +20,10 @@
         <input id="user-input"></input>
         <button id="search-button" class="search-button">Search</button>
     </section>
-    <div id="map" style="min-width: 600px; min-height: 400px;"></div>
-    <div id="list"></div>
+    <div class="list-map-container">
+        <div id="map" style="min-width: 600px; min-height: 400px;"></div>
+        <div id="list"></div>
+    </div>
     <!-- This is being left here temporatily to allow quick styling edits if needed -->
     <!-- <div class="list-container">
         <div class="list-item">
