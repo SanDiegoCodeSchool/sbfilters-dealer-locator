@@ -78,8 +78,8 @@ const createDealers = async (local) => {
         });
     };
 
-    checkIfDataAlreadyExists();
-    // insertData();
+    // checkIfDataAlreadyExists();
+    insertData();
 
 };
 
