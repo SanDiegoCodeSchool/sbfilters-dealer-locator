@@ -28,7 +28,7 @@ const createDealers = async (local) => {
         const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/pem/sdcs-sb.pem'), 'utf8')];
         console.log('ca: ', ca);
         const url = `mongodb://${process.env.DOCUMENT_USER}:${process.env.DOCUMENT_PASSWORD}@${process.env.DOCUMENT_URL}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
-        const client = new MongoClient(url, { 
+        client = new MongoClient(url, { 
             sslValidate: true,
             sslCA: ca,
             useNewUrlParser: true,
