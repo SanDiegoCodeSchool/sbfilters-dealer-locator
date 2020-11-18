@@ -39,6 +39,7 @@ const createDealers = async (local) => {
     const dbName = 'sbdealers';  
 
     const insertData = () => {
+        console.log(client);
         client.connect((err, client) => {
             if (err) console.log(`Insert Data Connect Error: `, err);
             console.log("Connected to DB to seed data");
