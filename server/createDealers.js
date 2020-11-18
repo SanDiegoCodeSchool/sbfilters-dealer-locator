@@ -25,7 +25,7 @@ const createDealers = async (local) => {
     } else {
         console.log("using live connection")
         //Specify the Amazon DocumentDB cert
-        const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/pem/sdcs-sb.pem'), 'utf8')];
+        const ca = [fs.readFileSync(path.join(__dirname + '/../savedFiles/pem/rds-combined-ca-bundle.pem'), 'utf8')];
         console.log('ca: ', ca);
         const url = `mongodb://${process.env.DOCUMENT_USER}:${process.env.DOCUMENT_PASSWORD}@${process.env.DOCUMENT_URL}/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
         client = new MongoClient(url, { 
